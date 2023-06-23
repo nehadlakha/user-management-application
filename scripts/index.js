@@ -1,36 +1,29 @@
 const state = {
-  taskList: [],
+  userList: [],
 };
 
 // DOM - document object
-const taskContents = document.querySelector(".task__contents");
-const taskModal = document.querySelector(".task__modal__body");
+const userContents = document.querySelector(".user__contents");
+const userModal = document.querySelector(".user__modal__body");
 
-const htmlTaskContent = ({ id, title, description, type, url }) => `
+const htmluserContent = ({ id, userN, mail, phone }) => `
   <div class='col-md-6 col-lg-4 mt-3' id=${id} key=${id}>
-    <div class='card shadow-sm task__card'>
-      <div class='card-header d-flex gap-2 justify-content-end task__card__header'>
-        <button type='button' class='btn btn-outline-info mr-2' name=${id} onclick="editTask.apply(this, arguments)">
+    <div class='card shadow-sm user__card'>
+      <div class='card-header d-flex gap-2 justify-content-end user__card__header'>
+        <button type='button' class='btn btn-outline-info mr-2' name=${id} onclick="edituser.apply(this, arguments)">
           <i class='fas fa-pencil-alt' name=${id}></i>
         </button>
-        <button type='button' class='btn btn-outline-danger mr-2' name=${id} onclick="deleteTask.apply(this, arguments)">
+        <button type='button' class='btn btn-outline-danger mr-2' name=${id} onclick="deleteuser.apply(this, arguments)">
           <i class='fas fa-trash-alt' name=${id}></i>
         </button>
       </div>
       <div class='card-body'>
-        ${
-          url
-            ? `<img width='100%' height='150px' style="object-fit: cover; object-position: center"  src=${url} alt='card image cap' class='card-image-top md-3 rounded-lg' />`
-            : `
-      <img width='100%' height='150px' style="object-fit: cover; object-position: center" src="https://reactnativecode.com/wp-content/uploads/2018/02/Default_Image_Thumbnail.png" alt='card image cap' class='img-fluid place__holder__image mb-3' />
-      `
-        }
-        <h4 class='task__card__title'>${title}</h4>
+        <h4 class='user__card__title'>${userN}</h4>
         <p class='description trim-3-lines text-muted' data-gram_editor='false'>
-          ${description}
+          ${mail}
         </p>
         <div class='tags text-white d-flex flex-wrap'>
-          <span class='badge bg-primary m-1'>${type}</span>
+          <span class='badge bg-primary m-1'>${phone}</span>
         </div>
       </div>
       <div class='card-footer'>
@@ -38,34 +31,25 @@ const htmlTaskContent = ({ id, title, description, type, url }) => `
         type='button' 
         class='btn btn-outline-primary float-right' 
         data-bs-toggle='modal'
-        data-bs-target='#showTask'
+        data-bs-target='#showuser'
         id=${id}
-        onclick='openTask.apply(this, arguments)'
+        onclick='openuser.apply(this, arguments)'
         >
-          Open Task
+          Open user
         </button>
       </div>
     </div>
   </div>
 `;
 
-const htmlModalContent = ({ id, title, description, url }) => {
+const htmlModalContent = ({ id, userN, mail }) => {
   const date = new Date(parseInt(id));
   return `
     <div id=${id}>
-    ${
-      url
-        ? `
-        <img width='100%' src=${url} alt='card image cap' class='img-fluid place__holder__image mb-3' />
-      `
-        : `
-      <img width='100%' src="https://reactnativecode.com/wp-content/uploads/2018/02/Default_Image_Thumbnail.png" alt='card image cap' class='img-fluid place__holder__image mb-3' />
-      `
-    }
     <strong class='text-sm text-muted'>Created on ${date.toDateString()}</strong>
-    <h2 class='my-3'>${title}</h2>
+    <h2 class='my-3'>${userN}</h2>
     <p class='lead'>
-      ${description}
+      ${mail}
     </p>
     </div>
   `;
@@ -73,61 +57,60 @@ const htmlModalContent = ({ id, title, description, url }) => {
 
 const updateLocalStorage = () => {
   localStorage.setItem(
-    "tasks",
+    "users",
     JSON.stringify({
-      tasks: state.taskList,
+      users: state.userList,
     })
   );
 };
 
 const loadInitialData = () => {
-  const localStorageCopy = JSON.parse(localStorage.tasks);
+  const localStorageCopy = JSON.parse(localStorage.users);
 
-  if (localStorageCopy) state.taskList = localStorageCopy.tasks;
+  if (localStorageCopy) state.userList = localStorageCopy.users;
 
-  state.taskList.map((cardDate) => {
-    taskContents.insertAdjacentHTML("beforeend", htmlTaskContent(cardDate));
+  state.userList.map((cardDate) => {
+    userContents.insertAdjacentHTML("beforeend", htmluserContent(cardDate));
   });
 };
 
 const handleSubmit = (event) => {
   const id = `${Date.now()}`;
   const input = {
-    url: document.getElementById("imageUrl").value,
-    title: document.getElementById("taskTitle").value,
-    description: document.getElementById("taskDescription").value,
-    type: document.getElementById("tags").value,
+    userN: document.getElementById("userName").value,
+    mail: document.getElementById("email").value,
+    phone: document.getElementById("phoneNo").value,
   };
 
-  if (input.title === "" || input.description === "" || input.type === "") {
+  if (input.userN === "" || input.mail === "" || input.phone === "") {
     return alert("Please fill all the fields");
   }
 
-  taskContents.insertAdjacentHTML(
+  userContents.insertAdjacentHTML(
     "beforeend",
-    htmlTaskContent({
+    htmluserContent({
       ...input,
       id,
     })
   );
 
-  state.taskList.push({ ...input, id });
+  state.userList.push({ ...input, id });
   updateLocalStorage();
 };
 
-const openTask = (e) => {
+const openuser = (e) => {
   if (!e) e = window.event;
 
-  const getTask = state.taskList.find(({ id }) => id === e.target.id);
-  taskModal.innerHTML = htmlModalContent(getTask);
+  const getuser = state.userList.find(({ id }) => id === e.target.id);
+  userModal.innerHTML = htmlModalContent(getuser);
 };
 
-const deleteTask = (e) => {
+const deleteuser = (e) => {
   if (!e) e = window.event;
   const targetID = e.target.getAttribute("name");
   const type = e.target.tagName;
-  const removeTask = state.taskList.filter(({ id }) => id !== targetID);
-  state.taskList = removeTask;
+  const removeuser = state.userList.filter(({ id }) => id !== targetID);
+  state.userList = removeuser;
 
   updateLocalStorage();
   if (type === "BUTTON") {
@@ -141,16 +124,16 @@ const deleteTask = (e) => {
   );
 };
 
-const editTask = (e) => {
+const edituser = (e) => {
   if (!e) e = window.event;
 
   const targetID = e.target.id;
   const type = e.target.tagName;
 
   let parentNode;
-  let taskTitle;
-  let taskDescription;
-  let taskType;
+  let userName;
+  let email;
+  let phoneNo;
   let submitButton;
 
   if (type === "BUTTON") {
@@ -159,14 +142,14 @@ const editTask = (e) => {
     parentNode = e.target.parentNode.parentNode.parentNode;
   }
 
-  taskTitle = parentNode.childNodes[3].childNodes[3];
-  taskDescription = parentNode.childNodes[3].childNodes[5];
-  taskType = parentNode.childNodes[3].childNodes[7].childNodes[1];
-  submitButton = parentNode.childNodes[5].childNodes[1];
+  userName = parentNode.childNodes[2].childNodes[2];
+  email = parentNode.childNodes[2].childNodes[4];
+  phoneNo = parentNode.childNodes[2].childNodes[6].childNodes[0];
+  submitButton = parentNode.childNodes[4].childNodes[0];
 
-  taskTitle.setAttribute("contenteditable", "true");
-  taskDescription.setAttribute("contenteditable", "true");
-  taskType.setAttribute("contenteditable", "true");
+  userName.setAttribute("contenteditable", "true");
+  email.setAttribute("contenteditable", "true");
+  phoneNo.setAttribute("contenteditable", "true");
 
   submitButton.setAttribute("onclick", "saveEdit.apply(this, arguments)");
   submitButton.removeAttribute("data-bs-toggle");
@@ -181,58 +164,57 @@ const saveEdit = (e) => {
   const parentNode = e.target.parentNode.parentNode;
   // console.log(parentNode.childNodes);
 
-  const taskTitle = parentNode.childNodes[3].childNodes[3];
-  const taskDescription = parentNode.childNodes[3].childNodes[5];
-  const taskType = parentNode.childNodes[3].childNodes[7].childNodes[1];
+  const userName = parentNode.childNodes[3].childNodes[3];
+  const email = parentNode.childNodes[3].childNodes[5];
+  const phoneNo = parentNode.childNodes[3].childNodes[7].childNodes[1];
   const submitButton = parentNode.childNodes[5].childNodes[1];
 
   const updateData = {
-    taskTitle: taskTitle.innerHTML,
-    taskDescription: taskDescription.innerHTML,
-    taskType: taskType.innerHTML,
+    userName: userName.innerHTML,
+    email: email.innerHTML,
+    phoneNo: phoneNo.innerHTML,
   };
 
-  let stateCopy = state.taskList;
+  let stateCopy = state.userList;
 
-  stateCopy = stateCopy.map((task) =>
-    task.id === targetID
+  stateCopy = stateCopy.map((user) =>
+    user.id === targetID
       ? {
-          id: task.id,
-          title: updateData.taskTitle,
-          description: updateData.taskDescription,
-          type: updateData.taskType,
-          url: task.url,
-        }
-      : task
+        id: user.id,
+        name: updateData.userName,
+        mail: updateData.email,
+        phone: updateData.phoneNo,
+      }
+      : user
   );
 
-  state.taskList = stateCopy;
+  state.userList = stateCopy;
   updateLocalStorage();
 
-  taskTitle.setAttribute("contenteditable", "false");
-  taskDescription.setAttribute("contenteditable", "false");
-  taskType.setAttribute("contenteditable", "false");
+  userName.setAttribute("contenteditable", "false");
+  email.setAttribute("contenteditable", "false");
+  phoneNo.setAttribute("contenteditable", "false");
 
-  submitButton.setAttribute("onclick", "openTask.apply(this, arguments)");
+  submitButton.setAttribute("onclick", "openuser.apply(this, arguments)");
   submitButton.setAttribute("data-bs-toggle", "modal");
-  submitButton.setAttribute("data-bs-target", "#showTask");
-  submitButton.innerHTML = "Open Task";
+  submitButton.setAttribute("data-bs-target", "#showuser");
+  submitButton.innerHTML = "Open user";
 };
 
-const searchTask = (e) => {
+const searchuser = (e) => {
   if (!e) e = window.event;
 
-  while (taskContents.firstChild) {
-    taskContents.removeChild(taskContents.firstChild);
+  while (userContents.firstChild) {
+    userContents.removeChild(userContents.firstChild);
   }
 
-  const resultData = state.taskList.filter(({ title }) => {
+  const resultData = state.userList.filter(({ name }) => {
     return title.toLowerCase().includes(e.target.value.toLowerCase());
   });
 
   console.log(resultData);
 
   resultData.map((cardData) => {
-    taskContents.insertAdjacentHTML("beforeend", htmlTaskContent(cardData));
+    userContents.insertAdjacentHTML("beforeend", htmluserContent(cardData));
   });
 };
